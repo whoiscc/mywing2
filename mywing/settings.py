@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'mywing.angel',
     'mywing.task',
+    'mywing.info',
 ]
 
 REST_FRAMEWORK = {

@@ -21,4 +21,5 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('task/', include('mywing.task.urls')),
     path('angel/', include('mywing.angel.urls')),
+    path('info/', include('mywing.info.urls')),
 ]
