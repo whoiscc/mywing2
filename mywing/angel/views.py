@@ -6,7 +6,6 @@ from rest_framework.decorators import api_view
 from rest_framework.authtoken.models import Token
 from cas import CASClient
 from django.contrib.auth.models import User
-from django.contrib.auth.models import AnonymousUser
 from urllib.parse import unquote
 from mywing.angel.serializers import AngelSerializer, CASLoginSerializer
 from mywing.angel.models import Angel
@@ -28,8 +27,6 @@ class CASLoginView(generics.GenericAPIView):
     queryset = Angel.objects.all()
 
     def post(self, request):
-        if not isinstance(request.user, AnonymousUser):
-            raise serializers.ValidationError('already login')
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
@@ -54,7 +51,7 @@ class CASLoginView(generics.GenericAPIView):
                 angel.save()
         else:
             raise serializers.ValidationError('unknown domain')
-        token = Token.objects.create(user=user)
+        token, _created = Token.objects.get_or_create(user=user)
         return Response({**AngelSerializer(angel).data, 'token': token.key})
 
 
