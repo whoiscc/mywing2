@@ -57,5 +57,5 @@ class CASLoginView(generics.GenericAPIView):
 
 @api_view(['POST'])
 def logout(request):
-    request.user.token.delete()
+    request.user.auth_token.delete()
     return Response('ok')
