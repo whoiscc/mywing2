@@ -8,7 +8,7 @@ class Task(models.Model):
     cost = models.FloatField()
     owner = models.ForeignKey(Angel, on_delete=models.SET_NULL, null=True, related_name='owned_tasks')
     helper = models.ForeignKey(Angel, on_delete=models.SET_NULL, null=True, related_name='helped_tasks')
-    contribution = models.FloatField()
+    contribution = models.FloatField(default=0.0)
 
     CREATED = 0
     ACCEPTED = 1
