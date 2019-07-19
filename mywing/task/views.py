@@ -4,6 +4,7 @@ from rest_framework import generics, serializers
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from mywing.task.models import Task
 from mywing.task.serializers import TaskSerializer
 
@@ -12,7 +13,7 @@ class RecentUnacceptedTasksView(generics.ListAPIView):
     serializer_class = TaskSerializer
 
     def get_queryset(self):
-        return Task.objects.filter(status=Task.CREATED).exclude(owner=self.request.user.angel)[:20]
+        return Task.objects.filter(status=Task.CREATED).exclude(owner=self.request.user.angel).order_by('-cost')[:20]
 
 
 class UpdateTaskView(generics.UpdateAPIView):
@@ -38,6 +39,7 @@ def accept(request, pk):
         raise serializers.ValidationError('invalid task status')
     task.status = Task.ACCEPTED
     task.helper = request.user.angel
+    task.accepted_at = timezone.now()
     task.save()
     return Response(TaskSerializer(task).data)
 
@@ -56,6 +58,7 @@ def finish(request, pk):
         task.contribution = contribution
     except:
         raise serializers.ValidationError('invalid contribution')
+    task.finished_at = timezone.now()
     task.save()
     return Response(TaskSerializer(task).data)
 
@@ -70,6 +73,7 @@ def complete(request, pk):
     task.status = Task.COMPLETED
     task.save()
     task.helper.contribution += task.contribution
+    task.completed_at = timezone.now()
     task.helper.save()
     return Response(TaskSerializer(task).data)
 
@@ -82,5 +86,6 @@ def cancel(request, pk):
     if task.status not in [Task.CREATED, Task.ACCEPTED, Task.FINISHED]:
         raise serializers.ValidationError('invalid task status')
     task.status = Task.CANCELED
+    task.canceled_at = timezone.now()
     task.save()
     return Response(TaskSerializer(task).data)
